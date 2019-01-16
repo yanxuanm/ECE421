@@ -33,8 +33,9 @@ def gradMSE(W, b, x, y, reg):
     # Your implementation here
     transpose_W = np.transpose(W)
     error = np.matmul(transpose_W, x) + b - y
-    grad_mse = (np.sum(np.transpose(error)* x))/(np.shape(y)[0]) + 2 * reg * W
-    return grad_mse
+    grad_mse_W = (np.sum(np.transpose(error)* x))/(np.shape(y)[0]) + 2 * reg * W
+    grad_mse_d = (np.sum(np.transpose(error)))/(np.shape(y)[0]) 
+    return grad_mse_W, grad_mse_d
 
 def crossEntropyLoss(W, b, x, y, reg):
     # Your implementation here

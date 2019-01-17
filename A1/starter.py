@@ -87,10 +87,10 @@ if __name__ == '__main__':
     trainData = trainData.reshape((trainData.shape[0], trainData.shape[1]*trainData.shape[2]))
     validData = validData.reshape((-1,validData.shape[1]*validData.shape[2])) 
     testData = testData.reshape((-1,testData.shape[1]*testData.shape[2]))
-    W = np.random.random_sample(trainData.shape[1],1)
+    W = np.zeros((trainData.shape[1],1))
     print(trainData.shape,trainTarget.shape,W.shape,testData.shape,validData.shape)
-    b = np.random(size=None)
-    alpha = 0.0001
+    b = 0
+    alpha = 0.001
     iterations = 5000
     reg = 0
     EPS = 1e-4

@@ -61,7 +61,6 @@ def grad_descent(W, b, trainingData, trainingLabels, alpha, iterations, reg, EPS
         valid_loss.append(MSE(new_W,new_b,validData,validTarget,reg))
         test_loss.append(MSE(new_W,new_b,testData,testTarget,reg))
         mag = np.linalg.norm(new_W-W)
-        print(mag)
         if mag<EPS:
             return new_W,new_b, train_loss, valid_loss, test_loss
         else:
@@ -88,13 +87,13 @@ if __name__ == '__main__':
     trainData = trainData.reshape((trainData.shape[0], trainData.shape[1]*trainData.shape[2]))
     validData = validData.reshape((-1,validData.shape[1]*validData.shape[2])) 
     testData = testData.reshape((-1,testData.shape[1]*testData.shape[2]))
-    W = np.zeros((trainData.shape[1],1))
+    W = np.random.random_sample(trainData.shape[1],1)
     print(trainData.shape,trainTarget.shape,W.shape,testData.shape,validData.shape)
-    b = 0
+    b = np.random(size=None)
     alpha = 0.0001
     iterations = 5000
     reg = 0
-    EPS = 1e-7
+    EPS = 1e-4
     W, b, train_loss, valid_loss, test_loss = grad_descent(W, b, trainData, trainTarget, 
                     alpha, iterations, reg, EPS, validData, testData, validTarget, testTarget)
 
@@ -114,6 +113,6 @@ if __name__ == '__main__':
     plt.plot(iterations,train_loss)
     plt.plot(iterations,valid_loss)
     plt.plot(iterations,test_loss)
-    plt.suptitle('Alpha = 0.005, lambda = 0', fontsize=16)
+    plt.suptitle('Alpha = 0.005, lambda = 0.001', fontsize=16)
     plt.legend(['train_loss', 'valid_loss', 'test_loss'], loc='upper right')
     plt.show()

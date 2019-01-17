@@ -41,33 +41,92 @@ def gradMSE(W, b, x, y, reg):
 
 def crossEntropyLoss(W, b, x, y, reg):
     # Your implementation here
-    return 
+    y_hat = 1.0/(1.0+np.exp(-(np.matmul(x,W)+b)))
+
+    cross_entropy_loss = (np.sum(-y*np.log(y_hat)-(1-y)*np.log(1-y_hat)))/(np.shape(y)[0]) + reg/2*np.sum(W*W)
+    # print(y_hat, cross_entropy_loss)
+    return cross_entropy_loss
 
 def gradCE(W, b, x, y, reg):
     # Your implementation here
-    return 
+    y_hat = 1.0/(1.0+np.exp(-(np.matmul(x,W)+b)))
+    # der_y_hat = (-y)/(y_hat) + (1-y)/(1-y_hat)
+    # der_z = der_y_hat*y_hat*(1-y_hat)
+    # der_w =  np.matmul(np.transpose(x), der_z)/(np.shape(y)[0]) + 2*reg*W
+    der_w =  np.matmul(np.transpose(x), (y_hat - y))/(np.shape(y)[0]) + 2*reg*W
+    return der_w, np.sum((y_hat - y))/(np.shape(y)[0])
 
 def grad_descent(W, b, trainingData, trainingLabels, alpha, iterations, reg, EPS,
-                 validData, testData, validTarget, testTarget):
+                 validData, testData, validTarget, testTarget, lossType = "None"):
     # Your implementation here
-    train_loss = [MSE(W,b,trainingData,trainingLabels,reg)]
-    valid_loss = [MSE(W, b, validData, validTarget, reg)]
-    test_loss = [MSE(W, b, testData, testTarget, reg)]
-    for i in range(iterations):
-        grad_mse_W, grad_mse_b = gradMSE(W, b, trainingData, trainingLabels, reg)
-        new_W = W - alpha * grad_mse_W
-        new_b = b - alpha * grad_mse_b
-        train_loss.append(MSE(new_W,new_b,trainingData,trainingLabels,reg))
-        valid_loss.append(MSE(new_W,new_b,validData,validTarget,reg))
-        test_loss.append(MSE(new_W,new_b,testData,testTarget,reg))
-        mag = np.linalg.norm(new_W-W)
-        if mag<EPS:
-            return new_W,new_b, train_loss, valid_loss, test_loss
-        else:
-            W = new_W
-            b = new_b
-    return W,b,train_loss, valid_loss, test_loss
+    if lossType == "None":
+        train_loss = [MSE(W,b,trainingData,trainingLabels,reg)]
+        valid_loss = [MSE(W, b, validData, validTarget, reg)]
+        test_loss = [MSE(W, b, testData, testTarget, reg)]
+        out_train = np.matmul(trainData,W)+b
+        train_accur = [np.sum((out_train>=0.5)==trainTarget)/(trainData.shape[0])]
 
+        out_valid = np.matmul(validData,W)+b
+        valid_accur = [np.sum((out_valid>=0.5)==validTarget)/(validTarget.shape[0])]
+
+        out_test = np.matmul(testData,W)+b
+        test_accur = [np.sum((out_test>=0.5)==testTarget)/(testData.shape[0])]
+        for i in range(iterations):
+            grad_mse_W, grad_mse_b = gradMSE(W, b, trainingData, trainingLabels, reg)
+            new_W = W - alpha * grad_mse_W
+            new_b = b - alpha * grad_mse_b
+            train_loss.append(MSE(new_W,new_b,trainingData,trainingLabels,reg))
+            valid_loss.append(MSE(new_W,new_b,validData,validTarget,reg))
+            test_loss.append(MSE(new_W,new_b,testData,testTarget,reg))
+            out_train = np.matmul(trainData,new_W)+new_b
+            train_accur.append(np.sum((out_train>=0.5)==trainTarget)/(trainData.shape[0]))
+
+            out_valid = np.matmul(validData,new_W)+new_b
+            valid_accur.append(np.sum((out_valid>=0.5)==validTarget)/(validTarget.shape[0]))
+
+            out_test = np.matmul(testData,new_W)+new_b
+            test_accur.append(np.sum((out_test>=0.5)==testTarget)/(testData.shape[0]))
+            mag = np.linalg.norm(new_W-W)
+            if mag<EPS:
+                return new_W,new_b, train_loss, valid_loss, test_loss, train_accur, valid_accur, test_accur
+            else:
+                W = new_W
+                b = new_b
+        return W,b,train_loss, valid_loss, test_loss, train_accur, valid_accur, test_accur
+    else:
+        train_loss = [crossEntropyLoss(W,b,trainingData,trainingLabels,reg)]
+        valid_loss = [crossEntropyLoss(W, b, validData, validTarget, reg)]
+        test_loss = [crossEntropyLoss(W, b, testData, testTarget, reg)]
+        out_train = np.matmul(trainData,W)+b
+        train_accur = [np.sum((out_train>=0.5)==trainTarget)/(trainData.shape[0])]
+
+        out_valid = np.matmul(validData,W)+b
+        valid_accur = [np.sum((out_valid>=0.5)==validTarget)/(validTarget.shape[0])]
+
+        out_test = np.matmul(testData,W)+b
+        test_accur = [np.sum((out_test>=0.5)==testTarget)/(testData.shape[0])]
+        for i in range(iterations):
+            grad_mse_W, grad_mse_b = gradCE(W, b, trainingData, trainingLabels, reg)
+            new_W = W - alpha * grad_mse_W
+            new_b = b - alpha * grad_mse_b
+            train_loss.append(crossEntropyLoss(new_W,new_b,trainingData,trainingLabels,reg))
+            valid_loss.append(crossEntropyLoss(new_W,new_b,validData,validTarget,reg))
+            test_loss.append(crossEntropyLoss(new_W,new_b,testData,testTarget,reg))
+            out_train = np.matmul(trainData,new_W)+new_b
+            train_accur.append(np.sum((out_train>=0.5)==trainTarget)/(trainData.shape[0]))
+
+            out_valid = np.matmul(validData,new_W)+new_b
+            valid_accur.append(np.sum((out_valid>=0.5)==validTarget)/(validTarget.shape[0]))
+
+            out_test = np.matmul(testData,new_W)+new_b
+            test_accur.append(np.sum((out_test>=0.5)==testTarget)/(testData.shape[0]))
+            mag = np.linalg.norm(new_W-W)
+            if mag<EPS:
+                return new_W,new_b, train_loss, valid_loss, test_loss, train_accur, valid_accur, test_accur
+            else:
+                W = new_W
+                b = new_b
+        return W,b,train_loss, valid_loss, test_loss, train_accur, valid_accur, test_accur
 
 # def iter_cases(validData, testData, validTarget, testTarget, W, b, reg, iterations):
 #     valid_loss = [MSE(W, b, validData, validTarget, reg)]
@@ -88,15 +147,18 @@ if __name__ == '__main__':
     validData = validData.reshape((-1,validData.shape[1]*validData.shape[2])) 
     testData = testData.reshape((-1,testData.shape[1]*testData.shape[2]))
     W = np.zeros((trainData.shape[1],1))
-    print(trainData.shape,trainTarget.shape,W.shape,testData.shape,validData.shape)
-    b = 0
-    alpha = 0.001
-    iterations = 5000
-    reg = 0
-    EPS = 1e-4
-    W, b, train_loss, valid_loss, test_loss = grad_descent(W, b, trainData, trainTarget, 
-                    alpha, iterations, reg, EPS, validData, testData, validTarget, testTarget)
 
+    # print(trainData.shape,trainTarget.shape,W.shape,testData.shape,validData.shape)
+    b = 0
+
+    alpha = 0.005
+    iterations = 5000
+    reg = 0.1
+    EPS = 1e-7
+    W, b, train_loss, valid_loss, test_loss, train_accur, valid_accur, test_accur = grad_descent(W, 
+            b, trainData, trainTarget, alpha, iterations, reg, EPS, validData, testData, validTarget, testTarget, lossType = "None")
+    plt.imshow(W.reshape((28,28)))
+    plt.show()
     out = np.matmul(trainData,W)+b
     print(np.sum((out>=0.5)==trainTarget))
     print("Training data accuracy: ", np.sum((out>=0.5)==trainTarget)/(trainData.shape[0]))
@@ -109,10 +171,14 @@ if __name__ == '__main__':
     print(np.sum((out_test>=0.5)==testTarget))
     print("Test data accuracy: ", np.sum((out_test>=0.5)==testTarget)/(testData.shape[0]))
 
+    # print(W)
     iterations = range(len(train_loss))
     plt.plot(iterations,train_loss)
     plt.plot(iterations,valid_loss)
     plt.plot(iterations,test_loss)
-    plt.suptitle('Alpha = 0.005, lambda = 0.001', fontsize=16)
-    plt.legend(['train_loss', 'valid_loss', 'test_loss'], loc='upper right')
+    # plt.plot(iterations,train_accur)
+    # plt.plot(iterations,valid_accur)
+    # plt.plot(iterations,test_accur)
+    plt.suptitle('Alpha = 0.005, lambda = 0.1', fontsize=16)
+    plt.legend(['train loss', 'valid loss', 'test loss'], loc='lower right')
     plt.show()

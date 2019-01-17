@@ -25,7 +25,8 @@ def MSE(W, b, x, y, reg):
     # Your implementation here
     # transpose_W = np.transpose(W)
     error = np.matmul(x,W) + b - y
-    mse = (np.sum(error*error)/(2*np.shape(y)[0])) + reg/2*np.sum(W*W)
+    mse = (np.sum(error*error))/((2*np.shape(y)[0])) + reg/2*np.sum(W*W)
+    print(mse)
     return mse
 
 
@@ -43,8 +44,8 @@ def crossEntropyLoss(W, b, x, y, reg):
     # Your implementation here
     y_hat = 1.0/(1.0+np.exp(-(np.matmul(x,W)+b)))
 
-    cross_entropy_loss = (np.sum(-y*np.log(y_hat)-(1-y)*np.log(1-y_hat)))/(np.shape(y)[0]) + reg/2*np.sum(W*W)
-    # print(y_hat, cross_entropy_loss)
+    cross_entropy_loss = (np.sum(-(y*np.log(y_hat)+(1-y)*np.log(1-y_hat))))/(np.shape(y)[0]) + reg/2*np.sum(W*W)
+    print(cross_entropy_loss)
     return cross_entropy_loss
 
 def gradCE(W, b, x, y, reg):
@@ -179,6 +180,6 @@ if __name__ == '__main__':
     # plt.plot(iterations,train_accur)
     # plt.plot(iterations,valid_accur)
     # plt.plot(iterations,test_accur)
-    plt.suptitle('Alpha = 0.005, lambda = 0.1', fontsize=16)
-    plt.legend(['train loss', 'valid loss', 'test loss'], loc='lower right')
+    plt.suptitle('MSE loss Alpha = 0.005, lambda = 0.1', fontsize=16)
+    plt.legend(['train loss', 'valid loss', 'test loss'], loc='upper right')
     plt.show()

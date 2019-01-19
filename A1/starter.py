@@ -26,7 +26,7 @@ def MSE(W, b, x, y, reg):
     # transpose_W = np.transpose(W)
     error = np.matmul(x,W) + b - y
     mse = (np.sum(error*error))/((2*np.shape(y)[0])) + reg/2*np.sum(W*W)
-    print(mse)
+    # print(mse)
     return mse
 
 
@@ -147,18 +147,19 @@ if __name__ == '__main__':
     trainData = trainData.reshape((trainData.shape[0], trainData.shape[1]*trainData.shape[2]))
     validData = validData.reshape((-1,validData.shape[1]*validData.shape[2])) 
     testData = testData.reshape((-1,testData.shape[1]*testData.shape[2]))
-    W = np.zeros((trainData.shape[1],1))
+    W = np.random.randn(trainData.shape[1],1)
 
     # print(trainData.shape,trainTarget.shape,W.shape,testData.shape,validData.shape)
-    b = 0
+    b = np.random.randn(1, 1)
 
     alpha = 0.005
     iterations = 5000
-    reg = 0.1
+    reg = 0
     EPS = 1e-7
     W, b, train_loss, valid_loss, test_loss, train_accur, valid_accur, test_accur = grad_descent(W, 
-            b, trainData, trainTarget, alpha, iterations, reg, EPS, validData, testData, validTarget, testTarget, lossType = "None")
+            b, trainData, trainTarget, alpha, iterations, reg, EPS, validData, testData, validTarget, testTarget, lossType = "ll")
     plt.imshow(W.reshape((28,28)))
+    plt.suptitle('Visualize weight matrix when Alpha = %s lambda =  %s' %(alpha,  reg), fontsize=12)
     plt.show()
     out = np.matmul(trainData,W)+b
     print(np.sum((out>=0.5)==trainTarget))
@@ -174,12 +175,20 @@ if __name__ == '__main__':
 
     # print(W)
     iterations = range(len(train_loss))
+    plt.subplot(1, 2, 1)
     plt.plot(iterations,train_loss)
     plt.plot(iterations,valid_loss)
     plt.plot(iterations,test_loss)
     # plt.plot(iterations,train_accur)
     # plt.plot(iterations,valid_accur)
     # plt.plot(iterations,test_accur)
-    plt.suptitle('MSE loss Alpha = 0.005, lambda = 0.1', fontsize=16)
+    plt.suptitle('Linear regression: Alpha = %s lambda =  %s' %(alpha,  reg), fontsize=16)
     plt.legend(['train loss', 'valid loss', 'test loss'], loc='upper right')
+    plt.subplot(1, 2, 2)
+    plt.plot(iterations,train_accur)
+    plt.plot(iterations,valid_accur)
+    plt.plot(iterations,test_accur)
+    plt.suptitle('Linear regression: Alpha = %s lambda =  %s' %(alpha,  reg), fontsize=16)
+    plt.legend(['train accuracy', 'valid accuracy', 'test accuracy'], loc='lower right')
+
     plt.show()

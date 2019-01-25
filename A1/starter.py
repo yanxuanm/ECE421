@@ -1,6 +1,7 @@
 import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
+import time
 
 def loadData():
     with np.load('notMNIST.npz') as data :
@@ -147,6 +148,8 @@ if __name__ == '__main__':
     trainData = trainData.reshape((trainData.shape[0], trainData.shape[1]*trainData.shape[2]))
     validData = validData.reshape((-1,validData.shape[1]*validData.shape[2])) 
     testData = testData.reshape((-1,testData.shape[1]*testData.shape[2]))
+
+    time_start = time.clock()
     W = np.random.randn(trainData.shape[1],1)
 
     # print(trainData.shape,trainTarget.shape,W.shape,testData.shape,validData.shape)
@@ -157,10 +160,10 @@ if __name__ == '__main__':
     reg = 0
     EPS = 1e-7
     W, b, train_loss, valid_loss, test_loss, train_accur, valid_accur, test_accur = grad_descent(W, 
-            b, trainData, trainTarget, alpha, iterations, reg, EPS, validData, testData, validTarget, testTarget, lossType = "ll")
-    plt.imshow(W.reshape((28,28)))
-    plt.suptitle('Visualize weight matrix when Alpha = %s lambda =  %s' %(alpha,  reg), fontsize=12)
-    plt.show()
+            b, trainData, trainTarget, alpha, iterations, reg, EPS, validData, testData, validTarget, testTarget, lossType = "None")
+    # plt.imshow(W.reshape((28,28)))
+    # plt.suptitle('Visualize weight matrix when Alpha = %s lambda =  %s' %(alpha,  reg), fontsize=12)
+    # plt.show()
     out = np.matmul(trainData,W)+b
     print(np.sum((out>=0.5)==trainTarget))
     print("Training data accuracy: ", np.sum((out>=0.5)==trainTarget)/(trainData.shape[0]))
@@ -172,6 +175,9 @@ if __name__ == '__main__':
     out_test = np.matmul(testData,W)+b
     print(np.sum((out_test>=0.5)==testTarget))
     print("Test data accuracy: ", np.sum((out_test>=0.5)==testTarget)/(testData.shape[0]))
+    time_elapsed = (time.clock() - time_start)
+
+    print(time_elapsed, 's')
 
     # print(W)
     iterations = range(len(train_loss))

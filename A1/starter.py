@@ -128,7 +128,7 @@ def grad_descent(W, b, trainingData, trainingLabels, alpha, iterations, reg, EPS
             else:
                 W = new_W
                 b = new_b
-        return W,b,train_loss, valid_loss, test_loss, train_accur, valid_accur, test_accur
+    return W,b,train_loss, valid_loss, test_loss, train_accur, valid_accur, test_accur
 
 # def iter_cases(validData, testData, validTarget, testTarget, W, b, reg, iterations):
 #     valid_loss = [MSE(W, b, validData, validTarget, reg)]
@@ -266,6 +266,7 @@ if __name__ == '__main__':
 
     print(time_elapsed, 's')
 
+    print(MSE(W, b, trainData, trainTarget, reg))
     # print(W)
     iterations = range(len(train_loss))
     plt.subplot(1, 2, 1)
@@ -281,7 +282,7 @@ if __name__ == '__main__':
     plt.plot(iterations,train_accur)
     plt.plot(iterations,valid_accur)
     plt.plot(iterations,test_accur)
-    plt.suptitle('Linear regression: Alpha = %s lambda =  %s' %(alpha,  reg), fontsize=16)
+    # plt.suptitle('Linear regression: Alpha = %s lambda =  %s' %(alpha,  reg), fontsize=16)
     plt.legend(['train accuracy', 'valid accuracy', 'test accuracy'], loc='lower right')
 
     plt.show()

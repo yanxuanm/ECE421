@@ -22,6 +22,13 @@ def loadData():
         testData, testTarget = Data[3600:], Target[3600:]
     return trainData, validData, testData, trainTarget, validTarget, testTarget
 
+def MSE(W, b, x, y, reg):
+    # Your implementation here
+    # transpose_W = np.transpose(W)
+    error = np.matmul(x,W) + b - y
+    mse = (np.sum(error*error))/((2*np.shape(y)[0])) + reg/2*np.sum(W*W)
+    # print(mse)
+    return mse
 
 
 def norm_equation(x, y):
@@ -48,7 +55,10 @@ if __name__ == '__main__':
     time_start = time.clock()
 
     W = np.random.randn(trainData.shape[1],1)
-
+    alpha = 0.005
+    iterations = 5000
+    reg = 0
+    EPS = 1e-7
     # print(trainData.shape,trainTarget.shape,W.shape,testData.shape,validData.shape)
     b = np.random.randn(1, 1)
     W, b = norm_equation(trainData, trainTarget)
@@ -72,3 +82,5 @@ if __name__ == '__main__':
     time_elapsed = (time.clock() - time_start)
 
     print(time_elapsed)
+
+    print(MSE(W, b, trainData, trainTarget, reg))

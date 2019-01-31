@@ -3,48 +3,54 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def loadData():
-    with np.load('notMNIST.npz') as data :
-        Data, Target = data ['images'], data['labels']
-        posClass = 2
-        negClass = 9
-        dataIndx = (Target==posClass) + (Target==negClass)
-        Data = Data[dataIndx]/255.
-        Target = Target[dataIndx].reshape(-1, 1)
-        Target[Target==posClass] = 1
-        Target[Target==negClass] = 0
-        np.random.seed(421)
-        randIndx = np.arange(len(Data))
-        np.random.shuffle(randIndx)
-        Data, Target = Data[randIndx], Target[randIndx]
-        trainData, trainTarget = Data[:3500], Target[:3500]
-        validData, validTarget = Data[3500:3600], Target[3500:3600]
-        testData, testTarget = Data[3600:], Target[3600:]
-    return trainData, validData, testData, trainTarget, validTarget, testTarget
+    pass
 
 def MSE(W, b, x, y, reg):
-    # Your implementation here
-    transpose_W = np.transpose(W)
-    error = np.matmul(transpose_W, x) + b - y
-    mse = (np.sum(np.square(error))/(2*np.shape(y)[0])) + reg*np.matmul(W, W)
-    return mse
+    pass
 
 
 def gradMSE(W, b, x, y, reg):
-    # Your implementation here
-    transpose_W = np.transpose(W)
-    error = np.matmul(transpose_W, x) + b - y
-    grad_mse = (np.sum(np.transpose(error)* x))/(np.shape(y)[0]) + 2 * reg * W
-    return grad_mse
+   pass
 
 def crossEntropyLoss(W, b, x, y, reg):
-    # Your implementation here
+    pass
 
 def gradCE(W, b, x, y, reg):
-    # Your implementation here
+    pass
 
 def grad_descent(W, b, trainingData, trainingLabels, alpha, iterations, reg, EPS):
-    # Your implementation here
+    pass
 
 def buildGraph(beta1=None, beta2=None, epsilon=None, lossType=None, learning_rate=None):
-    # Your implementation here
+    pass
+
+if __name__ == '__main__':
+    trainData, validData, testData, trainTarget, validTarget, testTarget = loadData()
+    trainData = trainData.reshape((trainData.shape[0], trainData.shape[1]*trainData.shape[2]))
+    validData = validData.reshape((-1,validData.shape[1]*validData.shape[2]))
+    testData = testData.reshape((-1,testData.shape[1]*testData.shape[2]))
+    W = np.random.randn((trainData.shape[1]),1)
+    b = np.random.randn(1,1)
+
+    W2 = np.random.randn((trainData.shape[1]), 1)
+    b2 = np.random.randn(1, 1)
+
+    W3 = np.random.randn((trainData.shape[1]), 1)
+    b3 = np.random.randn(1, 1)
+    
+    alpha = 0.005
+    alpha2 = 0.001
+    alpha3 = 0.0001
+    iterations = 5000
+    reg = 0
+    EPS = 1e-7
+    W, b, cost = grad_descent(W, b, trainData, trainTarget, alpha, iterations, reg, EPS,"MSE")
+    W2, b2, cost2 = grad_descent(W2, b2, trainData, trainTarget, alpha2, iterations, reg, EPS, "MSE")
+    W3, b3, cost3 = grad_descent(W3, b3, trainData, trainTarget, alpha3, iterations, reg, EPS, "MSE")
+
+    plt.plot(range(len(cost)), cost, c = "r", label = "cost_history_005")
+    plt.plot(range(len(cost2)), cost2, c="g", label="cost_history_001")
+    plt.plot(range(len(cost3)), cost3, c="b", label="cost_history_0001")
+    plt.legend(loc = "best")
+    plt.show()
 

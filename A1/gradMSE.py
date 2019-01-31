@@ -1,7 +1,6 @@
 def gradMSE(W, b, x, y, reg):
-    # Your implementation here
-    transpose_W = np.transpose(W)
-    error = np.matmul(transpose_W, x) + b - y
-    grad_mse = (np.sum(np.transpose(error)* x))/(np.shape(y)[0]) + 2 * reg * W
-    "Test"
-    return grad_mse
+    error = np.dot(x,W) + b - y
+    n = y.shape[0]
+    gradMSE_w = np.dot(np.transpose(x),((1.0 / n) * error)) + reg*W
+    gradMSE_b = np.sum(error)/n
+    return gradMSE_w, gradMSE_b

@@ -46,7 +46,7 @@ def crossEntropyLoss(W, b, x, y, reg):
     y_hat = 1.0/(1.0+np.exp(-(np.matmul(x,W)+b)))
 
     cross_entropy_loss = (np.sum(-(y*np.log(y_hat)+(1-y)*np.log(1-y_hat))))/(np.shape(y)[0]) + reg/2*np.sum(W*W)
-    print(cross_entropy_loss)
+
     return cross_entropy_loss
 
 def gradCE(W, b, x, y, reg):
@@ -236,15 +236,16 @@ if __name__ == '__main__':
     validData = validData.reshape((-1,validData.shape[1]*validData.shape[2])) 
     testData = testData.reshape((-1,testData.shape[1]*testData.shape[2]))
 
-    time_start = time.clock()
-    W = np.random.randn(trainData.shape[1],1)
+    mu, sigma = 0, 0.5 # mean and standard deviation
+    W = np.random.normal(mu, sigma, (trainData.shape[1],1))
 
     # print(trainData.shape,trainTarget.shape,W.shape,testData.shape,validData.shape)
-    b = np.random.randn(1, 1)
+    b = 0
 
     alpha = 0.005
     iterations = 5000
     reg = 0
+    
     EPS = 1e-7
     W, b, train_loss, valid_loss, test_loss, train_accur, valid_accur, test_accur = grad_descent(W, 
             b, trainData, trainTarget, alpha, iterations, reg, EPS, validData, testData, validTarget, testTarget, lossType = "None")
@@ -262,9 +263,7 @@ if __name__ == '__main__':
     out_test = np.matmul(testData,W)+b
     print(np.sum((out_test>=0.5)==testTarget))
     print("Test data accuracy: ", np.sum((out_test>=0.5)==testTarget)/(testData.shape[0]))
-    time_elapsed = (time.clock() - time_start)
 
-    print(time_elapsed, 's')
 
     print(MSE(W, b, trainData, trainTarget, reg))
     # print(W)
@@ -277,7 +276,7 @@ if __name__ == '__main__':
     # plt.plot(iterations,valid_accur)
     # plt.plot(iterations,test_accur)
     plt.suptitle('Linear regression: Alpha = %s lambda =  %s' %(alpha,  reg), fontsize=16)
-    plt.legend(['train loss', 'valid loss', 'test loss'], loc='upper right')
+    plt.legend(['train loss', 'valid loss'], loc='upper right')
     plt.subplot(1, 2, 2)
     plt.plot(iterations,train_accur)
     plt.plot(iterations,valid_accur)

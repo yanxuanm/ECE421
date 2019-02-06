@@ -85,7 +85,7 @@ def buildGraph(beta1=None, beta2=None, epsilon=None, lossType=None, learning_rat
             loss = loss + beta/2.0 * regularizer
             
             # Optimizer.
-            optimizer = tf.train.AdamOptimizer(learning_rate=0.001, beta2=0.9999).minimize(loss)
+            optimizer = tf.train.AdamOptimizer(learning_rate=0.001, beta1=0.99).minimize(loss)
           
             # Predictions for the training, validation, and test data.
 
@@ -141,6 +141,7 @@ def buildGraph(beta1=None, beta2=None, epsilon=None, lossType=None, learning_rat
                         valid_label: validTarget,
                         test_data: testData,
                         test_label: testTarget})
+                    # print(b.eval())
                 if (i % 1 == 0):
                     training_loss.append(l)
                     validating_loss.append(v_loss)
@@ -165,7 +166,7 @@ def buildGraph(beta1=None, beta2=None, epsilon=None, lossType=None, learning_rat
         plt.plot(range(n_epochs),train_accur)
         plt.plot(range(n_epochs),valid_accur)
         plt.plot(range(n_epochs),test_accur)
-        plt.suptitle('Adam CE beta2=0.9999 accuracy', fontsize=16)
+        plt.suptitle('Adam epsilon=1e-04 accuracy', fontsize=16)
         plt.legend(['train accuracy', 'valid accuracy', 'test accuracy'], loc='lower right')
 
         plt.show()
@@ -177,4 +178,8 @@ def buildGraph(beta1=None, beta2=None, epsilon=None, lossType=None, learning_rat
 
 
 if __name__ == '__main__':
-    trained_W, trained_b, predictions, trainTarget, l, optimizer, regularizer = buildGraph(lossType = "CE")
+    trained_W, trained_b, predictions, trainTarget, l, optimizer, regularizer = buildGraph(lossType = "MSE")
+
+    plt.imshow(trained_W.reshape((28,28)))
+    plt.suptitle('Visualize weight matrix', fontsize=12)
+    plt.show()

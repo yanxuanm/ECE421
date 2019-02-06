@@ -10,5 +10,3 @@ def grad_descent(W, b, trainingData, trainingLabels, alpha, iterations, reg, EPS
             W = new_W
             b = new_b
     return W,b
-
-        

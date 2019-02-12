@@ -62,3 +62,23 @@ def CE(target, prediction):
 def gradCE(target, prediction):
     softmax_ce = prediction - target
     return softmax_ce
+
+def back_out_weight(target, prediction, hidden_out):
+    softmax_ce = gradCE(target, prediction)
+    hidden_out_transpose = np.transpose(hidden_out)
+    grad_out_weight = np.matmul(hidden_out_transpose, softmax_ce)
+    return grad_out_weight
+
+def back_out_bias(target, prediction):
+    softmax_ce = gradCE(target, prediction)
+    ones = np.ones(1, shape(target)[0])
+    grad_out_bias = np.matmul(ones, softmax_ce)
+    return grad_out_bias
+
+def back_hidden_weight(target, prediction, input, input_out, out_weight):
+    input_out = input_out[input_out > 0] = 1
+    input_out = input_out[input_out < 0] = 0
+    softmax_ce = gradCE(target, prediction)
+    grad_hidden_weight = np.matmul(np.matmul(np.matmul(np.transpose(input), input_out), softmax_ce), np.transpose(out_weight))
+    return grad_hidden_weight
+

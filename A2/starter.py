@@ -76,9 +76,63 @@ def back_out_bias(target, prediction):
     return grad_out_bias
 
 def back_hidden_weight(target, prediction, input, input_out, out_weight):
-    input_out = input_out[input_out > 0] = 1
-    input_out = input_out[input_out < 0] = 0
+    input_out[input_out > 0] = 1
+    input_out[input_out < 0] = 0
     softmax_ce = gradCE(target, prediction)
-    grad_hidden_weight = np.matmul(np.matmul(np.matmul(np.transpose(input), input_out), softmax_ce), np.transpose(out_weight))
+    print(np.shape(out_weight))
+    grad_hidden_weight = np.matmul(np.matmul(np.matmul(np.transpose(input), \
+     input_out), softmax_ce), np.transpose(out_weight))
     return grad_hidden_weight
 
+def back_hidden_bias(target, prediction, input_out, out_weight):
+    input_out[input_out > 0] = 1
+    input_out[input_out < 0] = 0
+    ones = np.ones(1, shape(input_out)[0])
+    softmax_ce = gradCE(target, prediction)
+    grad_hidden_bias = np.matmul(np.matmul(np.matmul(ones, \
+        input_out), softmax_ce), np.transpose(out_weight))
+    return grad_hidden_bias
+
+
+def learning(trainData, target, W_o, v_o, W_h, v_h, epochs, \
+        gamma, learning_rate, bias_o, bias_h):
+
+    for i in range(epochs):
+        hidden_out = relu(np.matmul(trainData, W_h))
+        print(np.shape(hidden_out))
+        prediction = softmax(np.matmul(hidden_out, W_o))
+        v_o = gamma*v_o + learning_rate*back_out_weight(target, prediction, hidden_out)
+        W_o = W_o - v_o
+
+        v_h = gamma*v_h + learning_rate*back_hidden_weight(target, \
+            prediction, trainData, hidden_out, W_o)
+        W_h = W_h - v_h
+
+
+if __name__ == '__main__':
+    trainData, validData, testData, trainTarget, validTarget, testTarget = loadData()
+    trainData = trainData.reshape((trainData.shape[0], trainData.shape[1]*trainData.shape[2]))
+    validData = validData.reshape((-1,validData.shape[1]*validData.shape[2])) 
+    testData = testData.reshape((-1,testData.shape[1]*testData.shape[2]))
+
+    hidden_units = 1000
+    epochs = 200
+    gamma = 0.99
+    learning_rate = 0.01
+
+
+    newtrain, newvalid, newtest = convertOneHot(trainTarget, validTarget, testTarget)
+    mu = 0 # mean and standard deviation
+    stddev_o = 1.0/(hidden_units+10)
+    W_o = np.random.normal(mu, stddev_o, (hidden_units,10))
+    v_o = np.full((hidden_units,10), 1e-5)
+
+    stddev_h = 1.0/(trainData.shape[1]+hidden_units)
+    W_h = np.random.normal(mu, stddev_h, (trainData.shape[1],hidden_units))
+    v_h = np.full((trainData.shape[1],hidden_units), 1e-5)
+
+    bias_o = np.zeros((1, 10))
+    bias_h = np.zeros((1, hidden_units))
+
+    weight_o, bias_o, weight_h, bias_h = learning(trainData, newtrain, W_o, v_o, W_h, v_h, epochs, \
+        gamma, learning_rate, bias_o, bias_h)

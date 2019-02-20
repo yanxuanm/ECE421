@@ -80,8 +80,8 @@ def back_hidden_weight(target, prediction, input, input_out, out_weight):
     input_out[input_out < 0] = 0
     softmax_ce = gradCE(target, prediction)
     print(np.shape(out_weight))
-    grad_hidden_weight = np.matmul(np.matmul(np.matmul(np.transpose(input), \
-     input_out), softmax_ce), np.transpose(out_weight))
+    grad_hidden_weight = np.matmul(np.transpose(input), \
+     (input_out * np.matmul(softmax_ce, np.transpose(out_weight))))
     return grad_hidden_weight
 
 def back_hidden_bias(target, prediction, input_out, out_weight):
@@ -89,8 +89,8 @@ def back_hidden_bias(target, prediction, input_out, out_weight):
     input_out[input_out < 0] = 0
     ones = np.ones(1, shape(input_out)[0])
     softmax_ce = gradCE(target, prediction)
-    grad_hidden_bias = np.matmul(np.matmul(np.matmul(ones, \
-        input_out), softmax_ce), np.transpose(out_weight))
+    grad_hidden_bias = np.matmul(np.transpose(ones), \
+     (input_out * np.matmul(softmax_ce, np.transpose(out_weight))))
     return grad_hidden_bias
 
 

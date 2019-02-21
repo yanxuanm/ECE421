@@ -48,8 +48,15 @@ def relu(x):
     return relu_x
 
 def softmax(x):
-    softmax_x = np.transpose(np.divide(np.transpose(np.exp(x)),[((np.sum(np.exp(x), axis=1)))]))
-    return softmax_x
+    exp_x = np.exp(x)
+    return exp_x/np.sum(exp_x, axis=1, keepdims=True)
+
+# def softmax(x):
+#     e = np.exp(x - np.max(x))
+#     if e.ndim == 1:
+#         return e / np.sum(e, axis=0)
+#     else: # dim = 2
+#         return e / np.sum(e, axis=1, keepdims=True)
 
 def computeLayer(X, W, b):
     compute_layer = np.matmul(X_trans, W) + b
@@ -78,7 +85,7 @@ def back_out_bias(target, prediction):
 def back_hidden_weight(target, prediction, input, input_out, out_weight):
     input_out[input_out > 0] = 1
     input_out[input_out < 0] = 0
-    print(input_out)
+    # print(input_out)
     softmax_ce = gradCE(target, prediction)
     # print(np.shape(out_weight))
     grad_hidden_weight = np.matmul(np.transpose(input), \
@@ -96,20 +103,42 @@ def back_hidden_bias(target, prediction, input_out, out_weight):
 
 
 def learning(trainData, target, W_o, v_o, W_h, v_h, epochs, \
-        gamma, learning_rate, bias_o, bias_h):
+        gamma, learning_rate, bias_o, bias_h, validData, newvalid):
 
     W_v_o = v_o
     b_v_o = bias_o
     W_v_h = v_h
     b_v_h = bias_h
 
+    accuracy = []
+    accuracy_valid = []
     for i in range(epochs):
         hidden_input = np.add(np.matmul(trainData, W_h), bias_h)
         hidden_out = relu(hidden_input)
         
         prediction = softmax(np.add(np.matmul(hidden_out, W_o), bias_o))
-        print("prediction:", prediction)
-        W_v_o = gamma*W_v_o + learning_rate*back_out_weight(target, prediction, hidden_input)
+
+        predict_result_matrix = np.argmax(prediction, axis = 1)
+        actural_result_matrix = np.argmax(target, axis = 1)
+        compare = np.equal(predict_result_matrix, actural_result_matrix)
+        accuracy.append(np.sum((compare==True))/(trainData.shape[0]))
+
+
+
+        hidden_input_valid = np.add(np.matmul(validData, W_h), bias_h)
+        hidden_out_valid = relu(hidden_input_valid)
+        
+        prediction_valid = softmax(np.add(np.matmul(hidden_out_valid, W_o), bias_o))
+
+        predict_result_matrix_valid = np.argmax(prediction_valid, axis = 1)
+        actural_result_matrix_valid = np.argmax(newvalid, axis = 1)
+        compare_valid = np.equal(predict_result_matrix_valid, actural_result_matrix_valid)
+        accuracy_valid.append(np.sum((compare_valid==True))/(validData.shape[0]))
+
+
+
+        print("Iteration:", i)
+        W_v_o = gamma*W_v_o + learning_rate*back_out_weight(target, prediction, hidden_out)
         W_o = W_o - W_v_o
         b_v_o = gamma*b_v_o + learning_rate*back_out_bias(target, prediction)
         bias_o = bias_o - b_v_o
@@ -119,9 +148,9 @@ def learning(trainData, target, W_o, v_o, W_h, v_h, epochs, \
         W_h = W_h - W_v_h
         b_v_h = gamma*b_v_h + learning_rate*back_hidden_bias(target, prediction, hidden_input, W_o)
         bias_h = bias_h - b_v_h
-        print("W_o: ", W_o)
+        print("prediction: ", W_o)
 
-    return W_o, bias_o, W_h, bias_h
+    return W_o, bias_o, W_h, bias_h, accuracy, accuracy_valid
 
 
 if __name__ == '__main__':
@@ -130,27 +159,27 @@ if __name__ == '__main__':
     validData = validData.reshape((-1,validData.shape[1]*validData.shape[2])) 
     testData = testData.reshape((-1,testData.shape[1]*testData.shape[2]))
 
-    hidden_units = 1000
-    epochs = 10
+    hidden_units = 2000
+    epochs = 200
     gamma = 0.99
-    learning_rate = 0.0001
+    learning_rate = 0.0000001
 
 
     newtrain, newvalid, newtest = convertOneHot(trainTarget, validTarget, testTarget)
     mu = 0 # mean and standard deviation
     stddev_o = 1.0/(hidden_units+10)
-    W_o = np.random.normal(mu, stddev_o, (hidden_units,10))
-    v_o = np.full((hidden_units,10), 1e-5)
+    W_o = np.random.normal(mu, np.sqrt(stddev_o), (hidden_units,10))
+    v_o = np.full((hidden_units, 10), 1e-5)
 
     stddev_h = 1.0/(trainData.shape[1]+hidden_units)
-    W_h = np.random.normal(mu, stddev_h, (trainData.shape[1],hidden_units))
+    W_h = np.random.normal(mu, np.sqrt(stddev_h), (trainData.shape[1],hidden_units))
     v_h = np.full((trainData.shape[1],hidden_units), 1e-5)
 
     bias_o = np.zeros((1, 10))
     bias_h = np.zeros((1, hidden_units))
 
-    weight_o, bias_o, weight_h, bias_h = learning(trainData, newtrain, W_o, v_o, W_h, v_h, epochs, \
-        gamma, learning_rate, bias_o, bias_h)
+    weight_o, bias_o, weight_h, bias_h, accuracy, accuracy_valid = learning(trainData, newtrain, W_o, v_o, W_h, v_h, epochs, \
+        gamma, learning_rate, bias_o, bias_h, validData, newvalid)
 
 
     hidden_out = relu(np.add(np.matmul(trainData, weight_h), bias_h))
@@ -161,6 +190,24 @@ if __name__ == '__main__':
     actural_result_matrix = np.argmax(newtrain, axis = 1)
 
     compare = np.equal(predict_result_matrix, actural_result_matrix)
-    print(predict_result_matrix)
+    # print(predict_result_matrix)
     print("trainData accuracy: ", np.sum((compare==True))/(trainData.shape[0]))
+    accuracy.append(np.sum((compare==True))/(trainData.shape[0]))
+
+
+    hidden_input_valid = np.add(np.matmul(validData, weight_h), bias_h)
+    hidden_out_valid = relu(hidden_input_valid)
+    
+    prediction_valid = softmax(np.add(np.matmul(hidden_out_valid, weight_o), bias_o))
+
+    predict_result_matrix_valid = np.argmax(prediction_valid, axis = 1)
+    actural_result_matrix_valid = np.argmax(newvalid, axis = 1)
+    compare_valid = np.equal(predict_result_matrix_valid, actural_result_matrix_valid)
+    accuracy_valid.append(np.sum((compare_valid==True))/(validData.shape[0]))
+
+    iterations = range(len(accuracy))
+    plt.plot(iterations, accuracy)
+    plt.plot(iterations, accuracy_valid)
+    plt.legend(['train accuracy', 'valid accuracy'], loc='lower right')
+    plt.show()
 

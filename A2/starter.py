@@ -48,7 +48,7 @@ def relu(x):
     return relu_x
 
 def softmax(x):
-    softmax_x = np.exp(x)/sum(np.exp(x))
+    softmax_x = np.transpose(np.divide(np.transpose(np.exp(x)),[((np.sum(np.exp(x), axis=1)))]))
     return softmax_x
 
 def computeLayer(X, W, b):
@@ -71,15 +71,16 @@ def back_out_weight(target, prediction, hidden_out):
 
 def back_out_bias(target, prediction):
     softmax_ce = gradCE(target, prediction)
-    ones = np.ones(1, shape(target)[0])
+    ones = np.ones((1, target.shape[0]))
     grad_out_bias = np.matmul(ones, softmax_ce)
     return grad_out_bias
 
 def back_hidden_weight(target, prediction, input, input_out, out_weight):
     input_out[input_out > 0] = 1
     input_out[input_out < 0] = 0
+    print(input_out)
     softmax_ce = gradCE(target, prediction)
-    print(np.shape(out_weight))
+    # print(np.shape(out_weight))
     grad_hidden_weight = np.matmul(np.transpose(input), \
      (input_out * np.matmul(softmax_ce, np.transpose(out_weight))))
     return grad_hidden_weight
@@ -87,9 +88,9 @@ def back_hidden_weight(target, prediction, input, input_out, out_weight):
 def back_hidden_bias(target, prediction, input_out, out_weight):
     input_out[input_out > 0] = 1
     input_out[input_out < 0] = 0
-    ones = np.ones(1, shape(input_out)[0])
+    ones = np.ones((1, input_out.shape[0]))
     softmax_ce = gradCE(target, prediction)
-    grad_hidden_bias = np.matmul(np.transpose(ones), \
+    grad_hidden_bias = np.matmul(ones, \
      (input_out * np.matmul(softmax_ce, np.transpose(out_weight))))
     return grad_hidden_bias
 
@@ -97,16 +98,30 @@ def back_hidden_bias(target, prediction, input_out, out_weight):
 def learning(trainData, target, W_o, v_o, W_h, v_h, epochs, \
         gamma, learning_rate, bias_o, bias_h):
 
-    for i in range(epochs):
-        hidden_out = relu(np.matmul(trainData, W_h))
-        print(np.shape(hidden_out))
-        prediction = softmax(np.matmul(hidden_out, W_o))
-        v_o = gamma*v_o + learning_rate*back_out_weight(target, prediction, hidden_out)
-        W_o = W_o - v_o
+    W_v_o = v_o
+    b_v_o = bias_o
+    W_v_h = v_h
+    b_v_h = bias_h
 
-        v_h = gamma*v_h + learning_rate*back_hidden_weight(target, \
-            prediction, trainData, hidden_out, W_o)
-        W_h = W_h - v_h
+    for i in range(epochs):
+        hidden_input = np.add(np.matmul(trainData, W_h), bias_h)
+        hidden_out = relu(hidden_input)
+        
+        prediction = softmax(np.add(np.matmul(hidden_out, W_o), bias_o))
+        print("prediction:", prediction)
+        W_v_o = gamma*W_v_o + learning_rate*back_out_weight(target, prediction, hidden_input)
+        W_o = W_o - W_v_o
+        b_v_o = gamma*b_v_o + learning_rate*back_out_bias(target, prediction)
+        bias_o = bias_o - b_v_o
+
+        W_v_h = gamma*W_v_h + learning_rate*back_hidden_weight(target, \
+            prediction, trainData, hidden_input, W_o)
+        W_h = W_h - W_v_h
+        b_v_h = gamma*b_v_h + learning_rate*back_hidden_bias(target, prediction, hidden_input, W_o)
+        bias_h = bias_h - b_v_h
+        print("W_o: ", W_o)
+
+    return W_o, bias_o, W_h, bias_h
 
 
 if __name__ == '__main__':
@@ -116,9 +131,9 @@ if __name__ == '__main__':
     testData = testData.reshape((-1,testData.shape[1]*testData.shape[2]))
 
     hidden_units = 1000
-    epochs = 200
+    epochs = 10
     gamma = 0.99
-    learning_rate = 0.01
+    learning_rate = 0.0001
 
 
     newtrain, newvalid, newtest = convertOneHot(trainTarget, validTarget, testTarget)
@@ -136,3 +151,16 @@ if __name__ == '__main__':
 
     weight_o, bias_o, weight_h, bias_h = learning(trainData, newtrain, W_o, v_o, W_h, v_h, epochs, \
         gamma, learning_rate, bias_o, bias_h)
+
+
+    hidden_out = relu(np.add(np.matmul(trainData, weight_h), bias_h))
+    # print(np.shape(hidden_out))
+    prediction = softmax(np.add(np.matmul(hidden_out, weight_o), bias_o))
+
+    predict_result_matrix = np.argmax(prediction, axis = 1)
+    actural_result_matrix = np.argmax(newtrain, axis = 1)
+
+    compare = np.equal(predict_result_matrix, actural_result_matrix)
+    print(predict_result_matrix)
+    print("trainData accuracy: ", np.sum((compare==True))/(trainData.shape[0]))
+

@@ -152,15 +152,14 @@ def learning(trainData, target, W_o, v_o, W_h, v_h, epochs, \
 
     return W_o, bias_o, W_h, bias_h, accuracy, accuracy_valid, accuracy_test, loss, loss_valid, loss_test
 
-import time
 start_time = time.time()
 
 
 if __name__ == '__main__':
     trainData, validData, testData, trainTarget, validTarget, testTarget = loadData()
-    trainData = trainData.reshape((trainData.shape[0], trainData.shape[1]*trainData.shape[2]))
-    validData = validData.reshape((-1,validData.shape[1]*validData.shape[2])) 
-    testData = testData.reshape((-1,testData.shape[1]*testData.shape[2]))
+    trainData = trainData.reshape((trainData.shape[0], -1))
+    validData = validData.reshape((validData.shape[0], -1))
+    testData = testData.reshape((testData.shape[0], -1))
 
     hidden_units = 100
     epochs = 200

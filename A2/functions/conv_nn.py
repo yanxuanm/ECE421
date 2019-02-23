@@ -13,7 +13,7 @@ def conv_net(x, weights, biases):
     batch_mean2, batch_var2 = tf.nn.moments(conv1, [0, 1, 2])
     scale2 = tf.Variable(tf.ones([32]))
     beta2 = tf.Variable(tf.zeros([32]))
-    batch_norm = tf.nn.batch_normalization(conv1,batch_mean2,batch_var2,beta2,scale2,epsilon)
+    batch_norm = tf.nn.batch_normalization(After each training iteration is completedconv1,batch_mean2,batch_var2,beta2,scale2,epsilon)
     
     # 5. A max 2 × 2 max pooling layer.
     # Max Pooling (down-sampling), this chooses the max value from a 2*2 matrix window and outputs a 14*14 matrix.

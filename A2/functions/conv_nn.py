@@ -7,13 +7,13 @@ def conv_net(x, weights, biases):
     conv1 = conv2d(x, weights['wc1'], biases['bc1'])
     
     # 3. ReLU activation 
-    ReLU_conv1 = fc1 = tf.nn.relu(conv1)
+    # ReLU_conv1 = fc1 = tf.nn.relu(conv1)
     
     # 4. A batch normalization layer
-    batch_mean2, batch_var2 = tf.nn.moments(ReLU_conv1, [0, 1, 2])
+    batch_mean2, batch_var2 = tf.nn.moments(conv1, [0, 1, 2])
     scale2 = tf.Variable(tf.ones([32]))
     beta2 = tf.Variable(tf.zeros([32]))
-    batch_norm = tf.nn.batch_normalization(ReLU_conv1,batch_mean2,batch_var2,beta2,scale2,epsilon)
+    batch_norm = tf.nn.batch_normalization(conv1,batch_mean2,batch_var2,beta2,scale2,epsilon)
     
     # 5. A max 2 × 2 max pooling layer.
     # Max Pooling (down-sampling), this chooses the max value from a 2*2 matrix window and outputs a 14*14 matrix.

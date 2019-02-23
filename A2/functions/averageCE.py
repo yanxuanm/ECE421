@@ -1,3 +1,3 @@
 def CE(target, prediction):
-    ce = -np.mean(np.matmul(target, np.log(prediction)))
+    ce = -np.mean(target*np.log(prediction))
     return ce 

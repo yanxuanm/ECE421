@@ -1,7 +1,7 @@
 x = tf.placeholder("float", [None, 28,28,1])
 y = tf.placeholder("float", [None, n_classes])
 weights = {
-    'wc1': tf.get_variable('W0', shape=(4,4,1,32), \
+    'wc1': tf.get_variable('W0', shape=(3,3,1,32), \
         initializer=tf.contrib.layers.xavier_initializer()), 
     'wc2': tf.get_variable('W1', shape=(14*14*32,64), \
         initializer=tf.contrib.layers.xavier_initializer()),  

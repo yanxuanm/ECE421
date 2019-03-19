@@ -161,7 +161,7 @@ if __name__ == '__main__':
     validData = validData.reshape((validData.shape[0], -1))
     testData = testData.reshape((testData.shape[0], -1))
 
-    hidden_units = 100
+    hidden_units = 1000
     epochs = 200
     gamma = 0.99
     learning_rate = 0.0000001

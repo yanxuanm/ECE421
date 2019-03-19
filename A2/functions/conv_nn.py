@@ -19,9 +19,10 @@ def conv_net(x, weights, biases):
     # Max Pooling (down-sampling), this chooses the max value from a 2*2 matrix window and outputs a 14*14 matrix.
     pool_conv1 = maxpool2d(batch_norm, k=2)
 
-    # 6. Fully connected layer
-    # Reshape conv2 output to fit fully connected layer input
+    # 6. Reshape conv2 output to fit fully connected layer input
     fc1 = tf.reshape(pool_conv1, [-1, weights['wc2'].get_shape().as_list()[0]])
+    
+    # 7. Fully connected layer
     fc1 = tf.add(tf.matmul(fc1, weights['wc2']), biases['bc2'])
     
     # 7. ReLU activation

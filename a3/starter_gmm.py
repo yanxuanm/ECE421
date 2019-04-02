@@ -50,7 +50,7 @@ def log_posterior(log_PDF, log_pi):
     #pi*guass divide by the total probability
     log_prob = tf.add(tf.transpose(log_pi),log_PDF)
     log_sum = hlp.reduce_logsumexp(log_prob,keep_dims=True)
-    output = log_prob - log_sum
+    output = log_prob/log_sum
     return output
 
 # Loading data
